@@ -1,19 +1,33 @@
-# Qt Widgets example with Conan
+# Qt Widgets example with Conan (Default CMake Generator)
 
 This is just a simple application to compile a Qt 5.12 Widgets application using
 nothing but Conan and Cmake. You do not need to have QtCreator installed, nor do
 you have to have the Qt libraries installed.
 
-# Installing Conan
+
+# Compiling With Qt Creator
+
+The CMakeLists.txt file was created so that it would work independently of
+whether conan was installed. To open and compile this project in QtCreator,
+simply open the CMakeLists.txt file and you are ready to go!
+
+
+# Compiling with Conan
+
+The Conan Package Manager can be used instead of the QtCreator/Qt Libraries installation.
+To do this you must first install the Conan Package manager.
+
+## Installing Conan
 
 Install conan to your pip3 home directory. You could install it to the system
 folder, but I don't like to do that.
 
 ```bash
+sudo apt install python3-pip
+
 pip3 install --user setuptools
 pip3 install --user wheel
 pip3 install --user conan
-
 
 # Add the bin crafters repository to your conan remote list.
 conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
@@ -22,8 +36,7 @@ conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-co
 conan remote list
 ```
 
-
-# Compiling
+## Compiling
 
 Before compiling, the only thing we need to make sure we have a few system libs:
 
@@ -34,24 +47,42 @@ sudo apt install cmake
 sudo apt install libxcb-xkb-dev
 ```
 
-Now we can build the application
+Now we can build the application.
+
+## Conan Generators
+
+Conan uses various generators for generating build script helpers. The
+generators that I prefer are `cmake_paths` and `virtualenv`
+
+### Cmake Paths
+
+Using the Cmake Paths generator `-g cmake_paths` will generate a conan_paths.cmake
+file. This file should be loaded in as a toolchain file from the command line
+so that Cmake knows where to look for the Qt libraries.
 
 ```bash
-cd SOURCE_CODE_FOLDER
+mkdir build && cd build
+conan install .. --build missing -g cmake_paths
 
-mkdir build
+cmake .. -D CMAKE_TOOLCHAIN_FILE=conan_paths.cmake
 
-cd build
+cmake --build .
+```
 
-# Read the conanfile.txt and download any packages that are needed.
-# The --build missing flag is set to build any libs that aren't already compiled
-# in the repo.
-conan install .. --build missing
+### Virtual Environment
+
+The Virtual Environment generator creates a shell script which you can activate
+by calling `source activate.sh`. This will allow cmake to find the Qt packages.
+
+```bash
+mkdir build && cd build
+conan install .. --build missing -g virtualenv
+
+source activate.sh
 
 cmake ..
 
 cmake --build .
-
 ```
 
 # Running The application
@@ -60,7 +91,7 @@ The shared libraries that the binary
 needs are all set in the RPATH, no need to set LD_LIBRARY_PATH
 
 You will however need Qt libraries where to find the plugins and where to find
-the fonts (fonts are not included in Qt5.12)
+the fonts (fonts are not included in Qt5.12).
 
 ```
 cd bin

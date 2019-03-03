@@ -2,4 +2,6 @@
 qt/5.12.1@bincrafters/stable
 
 [generators]
-cmake
+cmake_paths
+virtualrunenv
+virtualenv
